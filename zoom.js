@@ -1,4 +1,7 @@
 import { Builder, By, Key, until } from 'selenium-webdriver'
+import chrome from 'selenium-webdriver/chrome.js'
+import firefox from 'selenium-webdriver/firefox.js'
+
 import { merge } from 'lodash-es'
 import { Mutex } from 'async-mutex'
 
@@ -10,10 +13,7 @@ class Zoom {
     name: '',
     email: '',
     driver: 'chrome',
-    driverOptions: {
-      chrome: undefined,
-      firefox: undefined
-    }
+    headless: true
   }
 
   constructor(name, config) {
@@ -121,12 +121,16 @@ class Zoom {
   async buildDriver() {
     const driverBuilder = await new Builder().forBrowser(this.config.driver)
 
-    if (this.config.driverOptions.chrome) {
-      driverBuilder.setChromeOptions(this.config.driverOptions.chrome)
-    }
+    if (this.config.headless) {
+      const windowSize = { width: 1280, height: 720 }
 
-    if (this.config.driverOptions.firefox) {
-      driverBuilder.setFirefoxOptions(this.config.driverOptions.firefox)
+      if (this.config.driver === 'chrome') {
+        driverBuilder.setChromeOptions(new chrome.Options().headless().windowSize())
+      } else if (this.config.driver === 'firefox') {
+        driverBuilder.setFirefoxOptions(new firefox.Options().headless().windowSize())
+      } else {
+        throw new Error('Headless mode not yet supported for driver ' + this.config.driver)
+      }
     }
 
     this.driver = driverBuilder.build()
