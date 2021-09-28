@@ -1,7 +1,11 @@
 {
+  "name": "zoombot",
   "license": "WTFPL",
   "type": "module",
   "main": "./index.js",
+  "scripts": {
+    "daemon": "node index.js"
+  },
   "dependencies": {
     "async-mutex": "^0.3.2",
     "await-timeout": "^1.1.1",

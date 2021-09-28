@@ -44,7 +44,7 @@ async function printTasks (config) {
     return {
       name: meeting.name,
       schedule: meeting.cron ? meeting.cron : 'Immediate',
-      meetingId: meeting.meetingId,
+      meetingId: meeting.zoomConfig.meetingId,
       plugins: meeting.plugins.map(plugin => plugin.name).join(', ')
     }
   }))
