@@ -6,24 +6,24 @@ import { merge } from 'lodash-es'
 import { Mutex } from 'async-mutex'
 
 class Zoom {
-  DEFAULT_CONFIG = {
-    joinUrl: undefined,
-    meetingId: '',
-    meetingPassword: '',
-    name: '',
-    email: '',
-    driver: 'chrome',
-    headless: true
-  }
+  constructor (name, config) {
+    const defaultConfig = {
+      joinUrl: undefined,
+      meetingId: '',
+      meetingPassword: '',
+      name: '',
+      email: '',
+      driver: 'chrome',
+      headless: true
+    }
 
-  constructor(name, config) {
     this.name = name
-    this.config = merge(this.DEFAULT_CONFIG, config)
+    this.config = merge(defaultConfig, config)
     this.joined = false
     this.mutex = new Mutex()
   }
 
-  async join() {
+  async join () {
     if (this.joined) {
       throw new Error('Already joined meeting')
     }
@@ -34,15 +34,15 @@ class Zoom {
       joinUrl = 'https://zoom.us/wc/join/' + this.config.meetingId
     }
 
-    await this.driver.get(joinUrl);
-    await this.driver.findElement(By.name('inputname')).sendKeys(this.config.name, Key.RETURN);
-    await this.driver.wait(until.urlMatches(/^https:\/\/zoom\.us\/wc\/\d+\/join/), 1000);
+    await this.driver.get(joinUrl)
+    await this.driver.findElement(By.name('inputname')).sendKeys(this.config.name, Key.RETURN)
+    await this.driver.wait(until.urlMatches(/^https:\/\/zoom\.us\/wc\/\d+\/join/), 1000)
 
     while (true) {
       await this.driver.wait(until.elementLocated(By.css('#inputpasscode,.video-avatar__avatar')))
       const passwordInput = await this.driver.findElements(By.name('inputpasscode'))
       if (passwordInput.length !== 0) {
-        await passwordInput[0].sendKeys(this.config.meetingPassword, Key.RETURN);
+        await passwordInput[0].sendKeys(this.config.meetingPassword, Key.RETURN)
       } else {
         break
       }
@@ -51,12 +51,12 @@ class Zoom {
     this.joined = true
   }
 
-  async leave() {
+  async leave () {
     await this.driver.quit()
     this.joined = false
   }
 
-  async runExclusive(f) {
+  async runExclusive (f) {
     if (!this.joined) {
       throw new Error('Meeting is not joined')
     }
@@ -64,37 +64,37 @@ class Zoom {
     return this.mutex.runExclusive(f)
   }
 
-  async openMenu() {
+  async openMenu () {
     this.assertInMutexAndJoined()
     await this.driver.executeScript("document.getElementsByTagName('footer')[0].classList = ['footer'];")
   }
 
-  async openParticipants() {
+  async openParticipants () {
     this.assertInMutexAndJoined()
     if ((await this.driver.findElements(By.className('participants-header__title'))).length !== 0) {
       return
     }
 
-    await this.driver.wait(until.elementLocated(By.className("footer-button__participants-icon")))
+    await this.driver.wait(until.elementLocated(By.className('footer-button__participants-icon')))
     await this.driver.findElement(By.xpath('//div[@class="footer-button__participants-icon"]/../..')).click()
   }
 
-  async mute() {
+  async mute () {
     this.assertInMutexAndJoined()
     await this.driver.findElement(By.xpath('//div[@class="participants-section-container__participants-footer-bottom window-content-bottom"]/button[2]')).click()
   }
 
-  async openChat() {
+  async openChat () {
     this.assertInMutexAndJoined()
     if ((await this.driver.findElements(By.className('chat-header__title'))).length !== 0) {
       return
     }
 
-    await this.driver.wait(until.elementLocated(By.className("footer-button__chat-icon")))
+    await this.driver.wait(until.elementLocated(By.className('footer-button__chat-icon')))
     await this.driver.findElement(By.xpath('//div[@class="footer-button__chat-icon"]/../..')).click()
   }
 
-  async fetchMessageList() {
+  async fetchMessageList () {
     this.assertInMutexAndJoined()
     const messages = await this.driver.findElements(By.className('chat-message__text-box--others'))
     return await Promise.all(messages.map(async message => {
@@ -102,13 +102,13 @@ class Zoom {
     }))
   }
 
-  async sendChatMessage(message) {
+  async sendChatMessage (message) {
     this.assertInMutexAndJoined()
-    await this.driver.wait(until.elementLocated(By.className('chat-box__chat-textarea')));
-    await this.driver.findElement(By.className('chat-box__chat-textarea')).sendKeys(message, Key.RETURN);
+    await this.driver.wait(until.elementLocated(By.className('chat-box__chat-textarea')))
+    await this.driver.findElement(By.className('chat-box__chat-textarea')).sendKeys(message, Key.RETURN)
   }
 
-  assertInMutexAndJoined() {
+  assertInMutexAndJoined () {
     if (!this.joined) {
       throw new Error('Meeting is not joined')
     }
@@ -118,7 +118,7 @@ class Zoom {
     }
   }
 
-  async buildDriver() {
+  async buildDriver () {
     const driverBuilder = await new Builder().forBrowser(this.config.driver)
 
     if (this.config.headless) {

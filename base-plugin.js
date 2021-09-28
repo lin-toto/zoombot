@@ -1,9 +1,9 @@
 import { merge } from 'lodash-es'
 
 class BasePlugin {
-  constructor(name, zoomContext, config, defaultConfig) {
+  constructor (name, zoomContext, config, defaultConfig) {
     if (new.target === BasePlugin) {
-      throw new TypeError("Cannot construct BasePlugin");
+      throw new TypeError('Cannot construct BasePlugin')
     }
 
     if (!defaultConfig) {
@@ -16,7 +16,7 @@ class BasePlugin {
     this.running = true
   }
 
-  async run() {}
+  async run () {}
 }
 
 export default BasePlugin

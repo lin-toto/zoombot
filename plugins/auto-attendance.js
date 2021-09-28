@@ -3,16 +3,16 @@ import BasePlugin from '../base-plugin.js'
 import logger from '../logger.js'
 
 class AutoAttendance extends BasePlugin {
-  constructor(name, zoomContext, config) {
+  constructor (name, zoomContext, config) {
     super(name, zoomContext, config, {
       regex: undefined,
-      message: "",
+      message: '',
       checkInterval: 5000,
       timeoutBeforeMessage: 0
     })
   }
 
-  async run() {
+  async run () {
     const loggerName = `[AutoAttendance/${this.name}] `
 
     while (this.running) {
@@ -40,7 +40,7 @@ class AutoAttendance extends BasePlugin {
           }
         })
       } catch (e) {
-        logger.error(loggerName + `Unexpected error occurred`)
+        logger.error(loggerName + 'Unexpected error occurred')
         logger.error(e)
       }
     }

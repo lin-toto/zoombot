@@ -10,15 +10,16 @@ async function launchMeeting (meeting) {
 
   try {
     const zoom = new Zoom(meeting.name, meeting.zoomConfig)
-    logger.debug(loggerName + `Created zoom instance for meeting`)
+    logger.debug(loggerName + 'Created zoom instance for meeting')
     await zoom.join()
-    logger.info(loggerName + `Successfully joined meeting`)
+    logger.info(loggerName + 'Successfully joined meeting')
 
     for (const pluginConfig of meeting.plugins) {
+      // eslint-disable-next-line new-cap
       const plugin = new pluginConfig.plugin(meeting.name, zoom, pluginConfig.config)
-      logger.debug(loggerName + `Created ${pluginConfig.name}`)
+      logger.debug(loggerName + `Created plugin ${pluginConfig.name}`)
       const pluginPromise = plugin.run()
-      logger.info(loggerName + `Started ${pluginConfig.name}`)
+      logger.info(loggerName + `Started plugin ${pluginConfig.name}`)
 
       pluginPromise.then(() => {
         if (plugin.running) {
@@ -32,14 +33,14 @@ async function launchMeeting (meeting) {
       })
     }
   } catch (e) {
-    logger.error(loggerName + `Unexpected error occurred:`)
+    logger.error(loggerName + 'Unexpected error occurred:')
     logger.error(e)
   }
 }
 
 async function printTasks (config) {
-  logger.info("[Main] Registered tasks:")
-  const table = new Table();
+  logger.info('[Main] Registered tasks:')
+  const table = new Table()
   table.addRows(config.map(meeting => {
     return {
       name: meeting.name,
@@ -57,13 +58,13 @@ async function main () {
 
   for (const meeting of config) {
     if (meeting.cron) {
-      logger.debug(`[Main] Registered meeting cron job ` + meeting.name)
+      logger.debug('[Main] Registered meeting cron job ' + meeting.name)
       cron.schedule(meeting.cron, async () => await launchMeeting(meeting), {})
     } else {
-      logger.debug(`[Main] Launching immediate job ` + meeting.name)
+      logger.debug('[Main] Launching immediate job ' + meeting.name)
       await launchMeeting(meeting)
     }
   }
 }
 
-await main()
+main()
