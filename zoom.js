@@ -9,7 +9,11 @@ class Zoom {
     meetingPassword: '',
     name: '',
     email: '',
-    driver: 'chrome'
+    driver: 'chrome',
+    driverOptions: {
+      chrome: undefined,
+      firefox: undefined
+    }
   }
 
   constructor(name, config) {
@@ -23,8 +27,7 @@ class Zoom {
     if (this.joined) {
       throw new Error('Already joined meeting')
     }
-
-    this.driver = await new Builder().forBrowser(this.config.driver).build()
+    await this.buildDriver()
 
     let joinUrl = this.config.joinUrl
     if (!joinUrl) {
@@ -98,6 +101,20 @@ class Zoom {
     if (!this.mutex.isLocked()) {
       throw new Error('Not executed in Mutex context')
     }
+  }
+
+  async buildDriver() {
+    const driverBuilder = await new Builder().forBrowser(this.config.driver)
+
+    if (this.config.driverOptions.chrome) {
+      driverBuilder.setChromeOptions(this.config.driverOptions.chrome)
+    }
+
+    if (this.config.driverOptions.firefox) {
+      driverBuilder.setFirefoxOptions(this.config.driverOptions.firefox)
+    }
+
+    this.driver = driverBuilder.build()
   }
 }
 

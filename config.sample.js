@@ -3,6 +3,7 @@ import AutoAttendance from './plugins/auto-attendance.js'
 export default [
   {
     name: "Statistics",
+    crontab: "",
     zoomConfig: {
       name: 'Zoom Student',
       email: 'me@example.com',
