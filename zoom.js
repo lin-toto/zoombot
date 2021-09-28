@@ -58,10 +58,7 @@ class Zoom {
   }
 
   async runExclusive (f) {
-    if (!this.joined) {
-      throw new Error('Meeting is not joined')
-    }
-
+    this.assertJoined()
     return this.mutex.runExclusive(f)
   }
 
@@ -104,6 +101,11 @@ class Zoom {
     await this.driver.findElement(By.xpath('//div[@class="footer-button__chat-icon"]/../..')).click()
   }
 
+  async fetchParticipantsCount () {
+    this.assertJoined()
+    return parseInt(await this.driver.findElement(By.xpath('//span[@class="footer-button__number-counter"]/span')).getText())
+  }
+
   async fetchMessageList () {
     this.assertInMutexAndJoined()
     await this.closeModal()
@@ -130,12 +132,15 @@ class Zoom {
   }
 
   assertInMutexAndJoined () {
-    if (!this.joined) {
-      throw new Error('Meeting is not joined')
-    }
-
+    this.assertJoined()
     if (!this.mutex.isLocked()) {
       throw new Error('Not executed in Mutex context')
+    }
+  }
+
+  assertJoined () {
+    if (!this.joined) {
+      throw new Error('Meeting is not joined')
     }
   }
 
