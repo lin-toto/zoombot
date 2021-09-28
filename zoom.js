@@ -69,14 +69,29 @@ class Zoom {
     await this.driver.executeScript("document.getElementsByTagName('footer')[0].classList = ['footer'];")
   }
 
+  async openParticipants() {
+    this.assertInMutexAndJoined()
+    if ((await this.driver.findElements(By.className('participants-header__title'))).length !== 0) {
+      return
+    }
+
+    await this.driver.wait(until.elementLocated(By.className("footer-button__participants-icon")))
+    await this.driver.findElement(By.xpath('//div[@class="footer-button__participants-icon"]/../..')).click()
+  }
+
+  async mute() {
+    this.assertInMutexAndJoined()
+    await this.driver.findElement(By.xpath('//div[@class="participants-section-container__participants-footer-bottom window-content-bottom"]/button[2]')).click()
+  }
+
   async openChat() {
     this.assertInMutexAndJoined()
     if ((await this.driver.findElements(By.className('chat-header__title'))).length !== 0) {
       return
     }
 
-    await this.driver.wait(until.elementLocated(By.css("[aria-label='open the chat pane']")))
-    await this.driver.findElement(By.css("[aria-label='open the chat pane']")).click()
+    await this.driver.wait(until.elementLocated(By.className("footer-button__chat-icon")))
+    await this.driver.findElement(By.xpath('//div[@class="footer-button__chat-icon"]/../..')).click()
   }
 
   async fetchMessageList() {

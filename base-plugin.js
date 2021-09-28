@@ -6,6 +6,10 @@ class BasePlugin {
       throw new TypeError("Cannot construct BasePlugin");
     }
 
+    if (!defaultConfig) {
+      defaultConfig = {}
+    }
+
     this.name = name
     this.zoomContext = zoomContext
     this.config = merge(defaultConfig, config)

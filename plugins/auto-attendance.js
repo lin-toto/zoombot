@@ -16,6 +16,7 @@ class AutoAttendance extends BasePlugin {
     const loggerName = `[AutoAttendance/${this.name}] `
 
     while (this.running) {
+      await Timeout.set(this.config.checkInterval)
       try {
         await this.zoomContext.runExclusive(async () => {
           await this.zoomContext.openMenu()
@@ -40,7 +41,6 @@ class AutoAttendance extends BasePlugin {
         })
       } catch (e) {
       }
-      await Timeout.set(this.config.checkInterval)
     }
   }
 }
