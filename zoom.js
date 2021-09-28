@@ -11,7 +11,7 @@ class Zoom {
       joinUrl: undefined,
       meetingId: '',
       meetingPassword: '',
-      name: '',
+      participantName: '',
       email: '',
       driver: 'chrome',
       headless: true
@@ -35,7 +35,7 @@ class Zoom {
     }
 
     await this.driver.get(joinUrl)
-    await this.driver.findElement(By.name('inputname')).sendKeys(this.config.name, Key.RETURN)
+    await this.driver.findElement(By.name('inputname')).sendKeys(this.config.participantName, Key.RETURN)
     await this.driver.wait(until.urlMatches(/^https:\/\/zoom\.us\/wc\/\d+\/join/), 1000)
 
     while (true) {
@@ -66,11 +66,15 @@ class Zoom {
 
   async openMenu () {
     this.assertInMutexAndJoined()
+    await this.closeModal()
+
     await this.driver.executeScript("document.getElementsByTagName('footer')[0].classList = ['footer'];")
   }
 
   async openParticipants () {
     this.assertInMutexAndJoined()
+    await this.closeModal()
+
     if ((await this.driver.findElements(By.className('participants-header__title'))).length !== 0) {
       return
     }
@@ -81,11 +85,15 @@ class Zoom {
 
   async mute () {
     this.assertInMutexAndJoined()
+    await this.closeModal()
+
     await this.driver.findElement(By.xpath('//div[@class="participants-section-container__participants-footer-bottom window-content-bottom"]/button[2]')).click()
   }
 
   async openChat () {
     this.assertInMutexAndJoined()
+    await this.closeModal()
+
     if ((await this.driver.findElements(By.className('chat-header__title'))).length !== 0) {
       return
     }
@@ -96,6 +104,8 @@ class Zoom {
 
   async fetchMessageList () {
     this.assertInMutexAndJoined()
+    await this.closeModal()
+
     const messages = await this.driver.findElements(By.className('chat-message__text-box--others'))
     return await Promise.all(messages.map(async message => {
       return await message.getText()
@@ -104,8 +114,17 @@ class Zoom {
 
   async sendChatMessage (message) {
     this.assertInMutexAndJoined()
+    await this.closeModal()
+
     await this.driver.wait(until.elementLocated(By.className('chat-box__chat-textarea')))
     await this.driver.findElement(By.className('chat-box__chat-textarea')).sendKeys(message, Key.RETURN)
+  }
+
+  async closeModal () {
+    const modalBtn = await this.driver.findElements(By.xpath('//div[@class="zm-modal zm-modal-legacy"]//button[1]'))
+    if (modalBtn.length !== 0) {
+      await modalBtn[0].click()
+    }
   }
 
   assertInMutexAndJoined () {

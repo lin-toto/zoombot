@@ -13,8 +13,6 @@ class AutoAttendance extends BasePlugin {
   }
 
   async run () {
-    const loggerName = `[AutoAttendance/${this.name}] `
-
     while (this.running) {
       await Timeout.set(this.config.checkInterval)
       try {
@@ -22,17 +20,17 @@ class AutoAttendance extends BasePlugin {
           await this.zoomContext.openMenu()
           await this.zoomContext.openChat()
           const fetchedMessages = await this.zoomContext.fetchMessageList()
-          logger.debug(loggerName + 'Fetched message list: ', fetchedMessages)
+          logger.debug(this.loggerName + 'Fetched message list: ', fetchedMessages)
 
           for (const message of fetchedMessages) {
             if (message.match(this.regex)) {
-              logger.debug(loggerName + 'Regex has been matched in message: ' + message)
+              logger.debug(this.loggerName + 'Regex has been matched in message: ' + message)
 
               if (this.config.timeoutBeforeMessage) {
                 await Timeout.set(this.config.timeoutBeforeMessage)
               }
-              this.zoomContext.sendChatMessage(this.config.message)
-              logger.info(loggerName + 'Sent attendance message')
+              await this.zoomContext.sendChatMessage(this.config.message)
+              logger.info(this.loggerName + 'Successfully sent attendance message')
 
               this.running = false
               break
@@ -40,7 +38,7 @@ class AutoAttendance extends BasePlugin {
           }
         })
       } catch (e) {
-        logger.error(loggerName + 'Unexpected error occurred')
+        logger.error(this.loggerName + 'Unexpected error occurred')
         logger.error(e)
       }
     }

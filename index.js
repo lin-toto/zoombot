@@ -16,19 +16,19 @@ async function launchMeeting (meeting) {
 
     for (const pluginConfig of meeting.plugins) {
       // eslint-disable-next-line new-cap
-      const plugin = new pluginConfig.plugin(meeting.name, zoom, pluginConfig.config)
+      const plugin = new pluginConfig.plugin(pluginConfig.name, zoom, pluginConfig.config)
       logger.debug(loggerName + `Created plugin ${pluginConfig.name}`)
       const pluginPromise = plugin.run()
       logger.info(loggerName + `Started plugin ${pluginConfig.name}`)
 
       pluginPromise.then(() => {
         if (plugin.running) {
-          logger.warn(loggerName + `${pluginConfig.name} terminated unexpectedly`)
+          logger.warn(loggerName + `Plugin ${pluginConfig.name} terminated unexpectedly`)
         } else {
-          logger.info(loggerName + `${pluginConfig.name} terminated successfully`)
+          logger.info(loggerName + `Plugin ${pluginConfig.name} terminated successfully`)
         }
       }).catch(e => {
-        logger.error(loggerName + `${pluginConfig.name} terminated with exception`)
+        logger.error(loggerName + `Plugin ${pluginConfig.name} terminated with exception`)
         logger.error(e)
       })
     }
@@ -44,9 +44,9 @@ async function printTasks (config) {
   table.addRows(config.map(meeting => {
     return {
       name: meeting.name,
+      participantName: meeting.zoomConfig.participantName,
       schedule: meeting.cron ? meeting.cron : 'Immediate',
-      meetingId: meeting.zoomConfig.meetingId,
-      plugins: meeting.plugins.map(plugin => plugin.name).join(', ')
+      meetingId: meeting.zoomConfig.meetingId
     }
   }))
 

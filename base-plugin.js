@@ -14,6 +14,8 @@ class BasePlugin {
     this.zoomContext = zoomContext
     this.config = merge(defaultConfig, config)
     this.running = true
+
+    this.loggerName = `[${this.name}/${this.zoomContext.name}] `
   }
 
   async run () {}
