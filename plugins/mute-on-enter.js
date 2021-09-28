@@ -1,4 +1,6 @@
+import { By, until } from 'selenium-webdriver'
 import Timeout from 'await-timeout'
+
 import BasePlugin from '../base-plugin.js'
 import logger from '../logger.js'
 
@@ -9,6 +11,10 @@ class MuteOnEnter extends BasePlugin {
         await this.zoomContext.runExclusive(async () => {
           await this.zoomContext.openMenu()
           await this.zoomContext.openParticipants()
+
+          await this.zoomContext.driver.wait(until.elementLocated(
+            By.xpath('//div[@class="participants-section-container__participants-footer-bottom window-content-bottom"]/button[2]'
+            )))
           await this.zoomContext.mute()
           logger.info(this.loggerName + 'Successfully muted current user')
         })
