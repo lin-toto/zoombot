@@ -1,9 +1,10 @@
 import { Builder, By, Key, until } from 'selenium-webdriver'
-import chrome from 'selenium-webdriver/chrome.js'
-import firefox from 'selenium-webdriver/firefox.js'
-
 import { merge } from 'lodash-es'
 import { Mutex } from 'async-mutex'
+import Timeout from 'await-timeout'
+
+import chrome from 'selenium-webdriver/chrome.js'
+import firefox from 'selenium-webdriver/firefox.js'
 
 class Zoom {
   constructor (name, config) {
@@ -69,6 +70,7 @@ class Zoom {
     await this.closeModal()
 
     await this.driver.executeScript("document.getElementsByTagName('footer')[0].classList = ['footer'];")
+    await Timeout.set(50)
   }
 
   async openParticipants () {
