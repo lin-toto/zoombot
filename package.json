@@ -5,6 +5,7 @@
   "dependencies": {
     "async-mutex": "^0.3.2",
     "await-timeout": "^1.1.1",
+    "console-table-printer": "^2.10.0",
     "lodash-es": "^4.17.21",
     "node-cron": "^3.0.0",
     "selenium-webdriver": "^4.0.0-rc-1",

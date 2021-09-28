@@ -40,6 +40,8 @@ class AutoAttendance extends BasePlugin {
           }
         })
       } catch (e) {
+        logger.error(loggerName + `Unexpected error occurred`)
+        logger.error(e)
       }
     }
   }
