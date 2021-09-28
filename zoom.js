@@ -125,9 +125,9 @@ class Zoom {
       const windowSize = { width: 1280, height: 720 }
 
       if (this.config.driver === 'chrome') {
-        driverBuilder.setChromeOptions(new chrome.Options().headless().windowSize())
+        driverBuilder.setChromeOptions(new chrome.Options().headless().windowSize(windowSize))
       } else if (this.config.driver === 'firefox') {
-        driverBuilder.setFirefoxOptions(new firefox.Options().headless().windowSize())
+        driverBuilder.setFirefoxOptions(new firefox.Options().headless().windowSize(windowSize))
       } else {
         throw new Error('Headless mode not yet supported for driver ' + this.config.driver)
       }
