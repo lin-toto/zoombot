@@ -4,37 +4,51 @@ import BasePlugin from '../base-plugin.js'
 import logger from '../logger.js'
 
 class AutoLeave extends BasePlugin {
-  constructor (name, ctx, config) {
-    super(name, ctx, config, {})
+  constructor (name, zoomContext, config) {
+    super(name, zoomContext, config, {
+      checkInterval: 60000,
+      shouldStayForDurationRatio: undefined,
+      leaveTriggerRatio: 0.5
+    })
+
     this.maxParticipantsCount = 0
-    this.participantsCount = 0
+    this.startTime = new Date().getTime()
+
+    if (this.config.shouldStayForDurationRatio && !this.zoomContext.config.duration) {
+      throw new Error('Duration of the corresponding zoom context should be set')
+    }
   }
 
   async run () {
     while (this.running) {
+      await Timeout.set(this.config.checkInterval)
+
+      let participantsCount
       await this.zoomContext.runExclusive(async () => {
-        logger.debug(this.loggerName + 'Fetch participants count')
-        await this.zoomContext.openParticipants()
-        this.participantsCount = await this.zoomContext.fetchParticipantsCount()
-        this.maxParticipantsCount = Math.max(
-          this.maxParticipantsCount,
-          this.participantsCount
-        )
+        logger.debug(this.loggerName + 'Fetching participants count')
+        await this.zoomContext.openMenu()
+        participantsCount = await this.zoomContext.fetchParticipantsCount()
       })
-      logger.info(
-        this.loggerName +
-          'Participants count:' +
-          String(this.participantsCount) +
-          '/' +
-          String(this.maxParticipantsCount)
-      )
-      if (this.participantsCount < Math.ceil(this.maxParticipantsCount / 2)) {
-        logger.debug(this.loggerName + 'Leave metting...')
-        await this.zoomContext.leave()
-        break
+
+      if (this.maxParticipantsCount < participantsCount) {
+        this.maxParticipantsCount = participantsCount
+        logger.info(this.loggerName + `Max participants count: ${this.maxParticipantsCount}`)
       }
-      await Timeout.set(5000)
+      logger.debug(this.loggerName + `Participants count: ${participantsCount}/${this.maxParticipantsCount}`)
+
+      if (!this.config.shouldStayForDurationRatio || !this.isInStayPeriod()) {
+        if (participantsCount < this.maxParticipantsCount * this.config.leaveTriggerRatio) {
+          logger.info(this.loggerName + 'Leave meeting...')
+          await this.zoomContext.leave()
+          this.running = false
+          break
+        }
+      }
     }
+  }
+
+  isInStayPeriod () {
+    return this.startTime + this.zoomContext.config.duration * this.config.shouldStayForDurationRatio >= new Date().getTime()
   }
 }
 

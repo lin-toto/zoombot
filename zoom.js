@@ -14,6 +14,7 @@ class Zoom {
       meetingPassword: '',
       participantName: '',
       email: '',
+      duration: undefined,
       driver: 'chrome',
       headless: true
     }
@@ -62,6 +63,8 @@ class Zoom {
   }
 
   async leave () {
+    // TODO: should handle leave in all plugins
+
     await this.driver.quit()
     this.joined = false
   }
