@@ -36,12 +36,21 @@ class Zoom {
     }
 
     await this.driver.get(joinUrl)
-    await this.driver.findElement(By.name('inputname')).sendKeys(this.config.participantName, Key.RETURN)
-    await this.driver.wait(until.urlMatches(/^https:\/\/zoom\.us\/wc\/\d+\/join/), 1000)
+    await this.driver
+      .findElement(By.name('inputname'))
+      .sendKeys(this.config.participantName, Key.RETURN)
+    await this.driver.wait(
+      until.urlMatches(/^https:\/\/zoom\.us\/wc\/\d+\/join/),
+      1000
+    )
 
     while (true) {
-      await this.driver.wait(until.elementLocated(By.css('#inputpasscode,.video-avatar__avatar')))
-      const passwordInput = await this.driver.findElements(By.name('inputpasscode'))
+      await this.driver.wait(
+        until.elementLocated(By.css('#inputpasscode,.video-avatar__avatar'))
+      )
+      const passwordInput = await this.driver.findElements(
+        By.name('inputpasscode')
+      )
       if (passwordInput.length !== 0) {
         await passwordInput[0].sendKeys(this.config.meetingPassword, Key.RETURN)
       } else {
@@ -66,7 +75,9 @@ class Zoom {
     this.assertInMutexAndJoined()
     await this.closeModal()
 
-    await this.driver.executeScript("document.getElementsByTagName('footer')[0].classList = ['footer'];")
+    await this.driver.executeScript(
+      "document.getElementsByTagName('footer')[0].classList = ['footer'];"
+    )
     await Timeout.set(50)
   }
 
@@ -74,58 +85,99 @@ class Zoom {
     this.assertInMutexAndJoined()
     await this.closeModal()
 
-    if ((await this.driver.findElements(By.className('participants-header__title'))).length !== 0) {
+    if (
+      (
+        await this.driver.findElements(
+          By.className('participants-header__title')
+        )
+      ).length !== 0
+    ) {
       return
     }
 
-    await this.driver.wait(until.elementLocated(By.className('footer-button__participants-icon')))
-    await this.driver.findElement(By.xpath('//div[@class="footer-button__participants-icon"]/../..')).click()
+    await this.driver.wait(
+      until.elementLocated(
+        By.xpath('//*[@id="wc-footer"]/div/div[2]/div[1]/button')
+      )
+    )
+    await this.driver
+      .findElement(By.xpath('//*[@id="wc-footer"]/div/div[2]/div[1]/button'))
+      .click()
   }
 
   async mute () {
     this.assertInMutexAndJoined()
     await this.closeModal()
 
-    await this.driver.findElement(By.xpath('//div[@class="participants-section-container__participants-footer-bottom window-content-bottom"]/button[2]')).click()
+    await this.driver
+      .findElement(
+        By.xpath(
+          '//div[@class="participants-section-container__participants-footer-bottom window-content-bottom"]/button[2]'
+        )
+      )
+      .click()
   }
 
   async openChat () {
     this.assertInMutexAndJoined()
     await this.closeModal()
 
-    if ((await this.driver.findElements(By.className('chat-header__title'))).length !== 0) {
+    if (
+      (await this.driver.findElements(By.className('chat-header__title')))
+        .length !== 0
+    ) {
       return
     }
 
-    await this.driver.wait(until.elementLocated(By.className('footer-button__chat-icon')))
-    await this.driver.findElement(By.xpath('//div[@class="footer-button__chat-icon"]/../..')).click()
+    await this.driver.wait(
+      until.elementLocated(By.className('footer-button__chat-icon'))
+    )
+    await this.driver
+      .findElement(By.xpath('//div[@class="footer-button__chat-icon"]/../..'))
+      .click()
   }
 
   async fetchParticipantsCount () {
     this.assertJoined()
-    return parseInt(await this.driver.findElement(By.xpath('//span[@class="footer-button__number-counter"]/span')).getText())
+    return parseInt(
+      await this.driver
+        .findElement(
+          By.xpath('//span[@class="footer-button__number-counter"]/span')
+        )
+        .getText()
+    )
   }
 
   async fetchMessageList () {
     this.assertInMutexAndJoined()
     await this.closeModal()
 
-    const messages = await this.driver.findElements(By.className('chat-message__text-box--others'))
-    return await Promise.all(messages.map(async message => {
-      return await message.getText()
-    }))
+    const messages = await this.driver.findElements(
+      By.className('chat-message__text-box--others')
+    )
+    return await Promise.all(
+      messages.map(async (message) => {
+        return await message.getText()
+      })
+    )
   }
 
   async sendChatMessage (message) {
     this.assertInMutexAndJoined()
     await this.closeModal()
 
-    await this.driver.wait(until.elementLocated(By.className('chat-box__chat-textarea')))
-    await this.driver.findElement(By.className('chat-box__chat-textarea')).sendKeys(message, Key.RETURN)
+    await this.driver.wait(
+      until.elementLocated(By.className('chat-box__chat-textarea'))
+    )
+    await this.driver
+      .findElement(By.className('chat-box__chat-textarea'))
+      .sendKeys(message, Key.RETURN)
   }
 
   async closeModal () {
-    const modalBtn = await this.driver.findElements(By.xpath('//div[@class="zm-modal zm-modal-legacy"]//button[1]'))
+    const modalBtn = await this.driver.findElements(
+      By.xpath('//div[@class="zm-modal zm-modal-legacy"]//button[1]')
+    )
     if (modalBtn.length !== 0) {
       await modalBtn[0].click()
     }
@@ -151,11 +203,17 @@ class Zoom {
       const windowSize = { width: 1280, height: 720 }
 
       if (this.config.driver === 'chrome') {
-        driverBuilder.setChromeOptions(new chrome.Options().headless().windowSize(windowSize))
+        driverBuilder.setChromeOptions(
+          new chrome.Options().headless().windowSize(windowSize)
+        )
       } else if (this.config.driver === 'firefox') {
-        driverBuilder.setFirefoxOptions(new firefox.Options().headless().windowSize(windowSize))
+        driverBuilder.setFirefoxOptions(
+          new firefox.Options().headless().windowSize(windowSize)
+        )
       } else {
-        throw new Error('Headless mode not yet supported for driver ' + this.config.driver)
+        throw new Error(
+          'Headless mode not yet supported for driver ' + this.config.driver
+        )
       }
     }
 
