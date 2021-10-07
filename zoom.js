@@ -16,7 +16,9 @@ class Zoom {
       email: '',
       duration: undefined,
       driver: 'chrome',
-      headless: true
+      headless: true,
+      chromeOptions: new chrome.Options(),
+      firefoxOptions: new firefox.Options()
     }
 
     this.name = name
@@ -207,11 +209,11 @@ class Zoom {
 
       if (this.config.driver === 'chrome') {
         driverBuilder.setChromeOptions(
-          new chrome.Options().headless().windowSize(windowSize)
+          this.config.chromeOptions.headless().windowSize(windowSize)
         )
       } else if (this.config.driver === 'firefox') {
         driverBuilder.setFirefoxOptions(
-          new firefox.Options().headless().windowSize(windowSize)
+          this.config.firefoxOptions.headless().windowSize(windowSize)
         )
       } else {
         throw new Error(
