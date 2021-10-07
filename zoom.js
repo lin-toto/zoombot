@@ -220,6 +220,12 @@ class Zoom {
           'Headless mode not yet supported for driver ' + this.config.driver
         )
       }
+    } else {
+      if (this.config.driver === 'chrome') {
+        driverBuilder.setChromeOptions(this.config.chromeOptions)
+      } else if (this.config.driver === 'firefox') {
+        driverBuilder.setFirefoxOptions(this.config.firefoxOptions)
+      }
     }
 
     this.driver = driverBuilder.build()
